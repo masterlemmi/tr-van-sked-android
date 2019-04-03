@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest package="com.longganisacode.android.vanschedule"
+          xmlns:android="http://schemas.android.com/apk/res/android"
+            android:versionCode="1"
+          android:versionName="3.0"
+    >
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher_vansked"
+        android:logo="@mipmap/ic_launcher_vansked"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity android:name="com.longganisacode.android.vanschedule.VanScheduleFrontActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.longganisacode.android.vanschedule.VanScheduleActivity"
+            android:parentActivityName="com.longganisacode.android.vanschedule.VanScheduleFrontActivity">
+        </activity>
+
+        <activity android:name="com.longganisacode.android.vanschedule.MyPreferenceActivity">
+        </activity>
+
+    </application>
+
+</manifest>

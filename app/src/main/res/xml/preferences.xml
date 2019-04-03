@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <EditTextPreference android:title="Name"
+                        android:key="userName"
+                        android:summary="Change the name used to greet you"/>
+    <EditTextPreference android:title="Greeting"
+                        android:key="greeting"
+                        android:defaultValue="Hi"
+                        android:summary="Change how you want to be greeted"/>
+    <CheckBoxPreference android:title="Sound/TTS"
+                        android:defaultValue="true"
+                        android:summary="Check to turn on Sound/TTS"
+                        android:key="soundTTSOn" />
+
+    <CheckBoxPreference android:title="Animation"
+                        android:defaultValue="true"
+                        android:summary="Check to show Van animation"
+                        android:key="animationSwitch" />
+    <ListPreference     android:title="Theme"
+                        android:summary="Select your preferred theme"
+                        android:key="themeType"
+                        android:defaultValue="1"
+                        android:entries="@array/listArray"
+                        android:enabled="false"
+                        android:entryValues="@array/listValues" />
+</PreferenceScreen>

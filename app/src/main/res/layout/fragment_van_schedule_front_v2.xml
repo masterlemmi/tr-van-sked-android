@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              >
+
+
+    <ImageView
+        android:layout_width="7dp"
+        android:layout_height="300dp"
+        android:id="@+id/imagePole"
+        android:background="@drawable/singlepole"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"/>
+
+    <ImageView
+        android:layout_width="100dp"
+        android:layout_height="40dp"
+        android:background="@drawable/office"
+        android:id="@+id/imageOfficeArrow"
+        android:layout_below="@+id/imageHomeArrow"
+        android:layout_toRightOf="@+id/imagePole"
+        android:layout_toEndOf="@+id/imagePole"/>
+
+    <ImageView
+        android:layout_width="100dp"
+        android:layout_height="40dp"
+        android:background="@drawable/home"
+        android:id="@+id/imageHomeArrow"
+        android:layout_marginTop="28dp"
+        android:layout_alignTop="@+id/imagePole"
+        android:layout_toLeftOf="@+id/imagePole"
+        android:layout_toStartOf="@+id/imagePole"/>
+
+    <ImageView
+        android:layout_width="129dp"
+        android:layout_height="132dp"
+        android:id="@+id/imageHalfLogo"
+        android:background="@drawable/logohalf"
+
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"/>
+
+</RelativeLayout>
