@@ -18,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import java.util.Locale;
 
@@ -33,6 +34,7 @@ public class VanScheduleFrontFragment extends Fragment implements TextToSpeech.O
     private String mPreferencesGreeting;
     private boolean mFirstTimeSignIn;
     private String mTextToSpeak;
+    private String scheduleStatus;
     private TextToSpeech mTextToSpeech;
     private Resources res;
     private SharedPreferences.Editor mSharedPreferenceEditor;
@@ -89,12 +91,6 @@ public class VanScheduleFrontFragment extends Fragment implements TextToSpeech.O
         mPreferencesSoundOn = mSharedPreferences.getBoolean("soundTTSOn", false);
         mPreferencesAnimationOn = mSharedPreferences.getBoolean("animationSwitch", false);
         mWantsToExit = mSharedPreferences.getBoolean("wantsToExit", false);                 //used to identify when loading vanskedfragment for the first time toinitiate tts
-
-        /*if(mTextToSpeech !=null){
-            mTextToSpeech.stop();
-            mTextToSpeech.shutdown();
-        }*/
-
     }
 
 
@@ -121,13 +117,6 @@ public class VanScheduleFrontFragment extends Fragment implements TextToSpeech.O
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.d("Lemzki", "oncreateview" + Boolean.toString(mWantsToExit));
 
-
-
-
-
-
-
-
         View v = inflater.inflate(R.layout.fragment_van_schedule_front_v2, container, false);
         ImageView mHomeButton = (ImageView) v.findViewById(R.id.imageHomeArrow);
         mHomeButton.setOnClickListener(new View.OnClickListener() {
@@ -137,8 +126,6 @@ public class VanScheduleFrontFragment extends Fragment implements TextToSpeech.O
                 frontPageButtonBehavior("home", mTextToSpeak, true);
             }
         });
-
-
 
 
         ImageView mOfficeButton = (ImageView) v.findViewById(R.id.imageOfficeArrow);
@@ -157,13 +144,6 @@ public class VanScheduleFrontFragment extends Fragment implements TextToSpeech.O
 
 
     private void frontPageButtonBehavior(String homeOrOffice, String message, boolean homeIsPressed) {
-
-
-        // Intent intent = VanScheduleActivity.newIntent(getActivity(), "office", false);                     //called the static method from vanschedactivity passing true as parameter to be used as extra
-        //   startActivityForResult(intent, REQUEST_CLOSE_ALL);                                                                   //when activity is started, it will have the value true for use
-        //FragmentManager manager = getFragmentManager();                                     //call fragment managers help
-        //VanAnimationDialogFragment dialog = new VanAnimationDialogFragment();                               //instantiate timpickerfragment
-        //dialog.show(manager, DIALOG_VAN_ANIM);
 
         if(mPreferencesAnimationOn) {
             FragmentManager manager = getFragmentManager();                                     //call fragment managers help
@@ -202,22 +182,21 @@ public class VanScheduleFrontFragment extends Fragment implements TextToSpeech.O
                 //speakOut(mTextToSpeak);
 
 
-                if (mPreferencesSoundOn){
-                    //speakafter3Seconds();
+                //speakafter3Seconds();
 
-                    if (mFirstTimeSignIn) {
-                        FragmentManager manager = getFragmentManager();                                     //call fragment managers help
-                        DisclaimerFragment disclaimerDialog = new DisclaimerFragment();                               //instantiate timpickerfragment
-                        disclaimerDialog.show(manager, DIALOG_DISCLAIMER);
+                if (mFirstTimeSignIn) {
+                    FragmentManager manager = getFragmentManager();                                     //call fragment managers help
+                    DisclaimerFragment disclaimerDialog = new DisclaimerFragment();                               //instantiate timpickerfragment
+                    disclaimerDialog.show(manager, DIALOG_DISCLAIMER);
+                } else {
+                    if (!mWantsToExit) {
+                        mTextToSpeak = String.format(res.getString(R.string.welcome_message), mPreferencesGreeting, mPreferencesUserName);
+                        speakOut(mTextToSpeak);
                     } else {
-                        if(!mWantsToExit) {
-                            mTextToSpeak = String.format(res.getString(R.string.welcome_message), mPreferencesGreeting, mPreferencesUserName);
-                            speakOut(mTextToSpeak);
-                        } else {
-                            speakOut("Bye!");
-                        }
+                        speakOut("Bye!");
                     }
                 }
+
             }
         } else {
             Log.i("TTS", "Initilization Failed!");
@@ -226,6 +205,9 @@ public class VanScheduleFrontFragment extends Fragment implements TextToSpeech.O
 
 
     private void speakOut(String whatToSay) {
+
+        if (!mPreferencesSoundOn)
+            return;
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             mTextToSpeech.speak(whatToSay, TextToSpeech.QUEUE_FLUSH, null, null);
@@ -259,36 +241,6 @@ public class VanScheduleFrontFragment extends Fragment implements TextToSpeech.O
             }
         }
     }
-
-
-
-//code for delaying
-
-    private void delayfor500ms() {
-                    final Handler handler = new Handler();
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            mTextToSpeak = String.format(res.getString(R.string.welcome_message), mPreferencesGreeting, mPreferencesUserName);
-                            speakOut(mTextToSpeak);
-                        }
-                    }, 500);
-       }
-
-
-
-
-    public void setWantsToExit (boolean wantsToExit) {
-        mWantsToExit = wantsToExit;
-    }
-
-
-
-
-
-
-
-
 }
 
 

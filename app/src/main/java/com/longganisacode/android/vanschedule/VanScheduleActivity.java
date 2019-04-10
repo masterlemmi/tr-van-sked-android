@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.Fragment;
 
+import com.longganisacode.android.vanschedule.schedule.SqliteScheduleService;
+
 /**
  * Created by U0136797 on 4/26/2016.
  */
@@ -27,4 +29,9 @@ public class VanScheduleActivity extends SingleFragmentActivity {
         return intent;
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        SqliteScheduleService.getInstance(this).closeDb();
+    }
 }

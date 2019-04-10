@@ -8,7 +8,7 @@
                         android:defaultValue="Hi"
                         android:summary="Change how you want to be greeted"/>
     <CheckBoxPreference android:title="Sound/TTS"
-                        android:defaultValue="true"
+                        android:defaultValue="false"
                         android:summary="Check to turn on Sound/TTS"
                         android:key="soundTTSOn" />
 

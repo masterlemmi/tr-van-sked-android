@@ -30,6 +30,11 @@
     </item>
 
     <item
+        android:id="@+id/menu_update"
+        android:title="@string/menu_update"
+        app:showAsAction="never"/>
+
+    <item
         android:id="@+id/menu_about"
         android:title="@string/menu_about"
         app:showAsAction="never"/>

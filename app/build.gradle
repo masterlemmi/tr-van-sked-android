@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    buildToolsVersion '27.0.3'
 
     defaultConfig {
         applicationId "com.longganisacode.android.vanschedule"
@@ -17,13 +17,20 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:23.2.1'
-    compile 'com.android.support:recyclerview-v7:24.0.0-alpha1'
-    compile 'com.android.support:appcompat-v7:24.0.0-alpha1'
-    compile 'com.android.support:preference-v14:23.1.0'
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    testImplementation 'junit:junit:4.12'
+    implementation 'com.android.support:appcompat-v7:23.2.1'
+    implementation 'com.android.support:recyclerview-v7:24.0.0-alpha1'
+    implementation 'com.android.support:appcompat-v7:24.0.0-alpha1'
+    implementation 'com.android.support:preference-v14:23.1.0'
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-csv
+    api group: 'org.apache.commons', name: 'commons-csv', version: '1.0'
+
 }

@@ -172,7 +172,6 @@ public class VanAnimationDialogFragment extends DialogFragment {
     }
 
 
-
         //to send result to vanschedule frontfragment
     private void sendResult(int resultCode, boolean wantsToExit) {
         if (getTargetFragment() == null) {
@@ -185,13 +184,4 @@ public class VanAnimationDialogFragment extends DialogFragment {
         getTargetFragment().onActivityResult(getTargetRequestCode(), resultCode, intent);               //called the target fragment onactivity result, and pass the request code, result code , and intent).
         //result cod ean dintent intent came from the called method (send result)
     }
-
-
-
-
-
-
-
-
-
 }

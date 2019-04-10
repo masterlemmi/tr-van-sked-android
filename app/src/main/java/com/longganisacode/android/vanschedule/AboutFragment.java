@@ -52,20 +52,6 @@ public class AboutFragment extends DialogFragment {
         return alertDialog;
     }
 
-/*
-    private void sendResult(int resultCode, boolean found) {                           //to be called by onclick event to send the result back to whoever called this fragment when Ok is clicked
-        if (getTargetFragment() == null) {
-            return;
-        }
-
-        Intent intent = new Intent();                                                               //save the entered time (selected hour inH) into the intent as extra
-        intent.putExtra(EXTRA_EASTER_EGG, found);
-
-        getTargetFragment().onActivityResult(getTargetRequestCode(), resultCode, intent);               //called the target fragment onactivity result, and pass the request code, result code , and intent).
-        //result cod ean dintent intent came from the called method (send result)
-    }
-
-    */
 }
 
 

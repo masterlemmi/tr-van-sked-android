@@ -9,9 +9,9 @@
 
 
         <ImageView
-            android:layout_width="117dp"
-            android:layout_height="65dp"
-            android:background="@drawable/vanimage"
+            android:layout_width="180dp"
+            android:layout_height="100dp"
+            android:background="@drawable/vanimagelem"
             android:id="@+id/imageView_Van"/>
 
 
