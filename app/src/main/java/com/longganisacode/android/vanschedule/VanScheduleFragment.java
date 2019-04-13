@@ -27,6 +27,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.longganisacode.android.vanschedule.schedule.Direction;
 import com.longganisacode.android.vanschedule.schedule.IScheduleService;
 import com.longganisacode.android.vanschedule.schedule.Schedule;
 import com.longganisacode.android.vanschedule.schedule.SqliteScheduleService;
@@ -44,21 +45,18 @@ public class VanScheduleFragment extends Fragment implements TextToSpeech.OnInit
     private IScheduleService mScheduleService;
     private Button mVanNumButton;
     private SwipeRefreshLayout mSwipeRefreshLayout;
-    public static final String EXTRA_EASTER_EGG = "com.longganisacode.android.vanschedule.extra_easter_egg";
     public static final String EXTRA_WANTS_TO_EXIT = "com.longganisacode.android.vanschedule.extra_wants_exit";
     private static final int REQUEST_EASTER_EGG = 2;
     private static final int REQUEST_VAN_NUM = 1;
     private static final int REQUEST_TIME = 0;
     private static final String DIALOG_TIPS = "DialogTips";
-    private static final String DIALOG_DISCLAIMER = "DialogDisclaimer";                                         // a constant for VAN pickerfragments tag
-    private static final String DIALOG_VAN_NUM = "DialogVan";                                         // a constant for VAN pickerfragments tag
-    private static final String DIALOG_TIME = "DialogDate";                                         // a constant for date pickerfragments tag
-    private static final String DIALOG_MENU_ABOUT = "DialogMenuAbout";                                         // a constant for date pickerfragments tag
-    private static final String ARG_LIST_TO_DISPLAY = "lisToDisplay";
-    private static final String ARG_IS_GOING_HOME = "isGoingHome";
+    private static final String DIALOG_DISCLAIMER = "DialogDisclaimer";
+    private static final String DIALOG_VAN_NUM = "DialogVan";
+    private static final String DIALOG_TIME = "DialogDate";
+    private static final String DIALOG_MENU_ABOUT = "DialogMenuAbout";
+    private static final String ARG_DIRECTION = "direction";
 
-    private boolean mHomeisPressed;                                             //used to determine if current VanScheduleFragment session is showing inbound or outbound
-    private int selectedHour;                                                 //used to determine what hour will be shown
+    private int selectedHour;
 
     private boolean mPreferencesSoundOn;
     private SharedPreferences mSharedPreferences;
@@ -70,17 +68,17 @@ public class VanScheduleFragment extends Fragment implements TextToSpeech.OnInit
     SharedPreferences.Editor mSharedPreferenceEditor;
     private SimpleDateFormat hourFormat = new SimpleDateFormat("H");
     private String scheduleStatus;
+    private Direction mDirection;
 
 
-    public static VanScheduleFragment newInstance(String listToDisplay, boolean homeIsPressed) {                     //a method that returns vanskdfrgment and asks for an int to determine what list to display
-        Bundle args = new Bundle();                                                          //create a bundle
-        args.putString(ARG_LIST_TO_DISPLAY, listToDisplay);                                    // place int to bundle (KEY: int (e.g.1 = homelist);
-        args.putBoolean(ARG_IS_GOING_HOME, homeIsPressed);                                      //place boolean into undle and pair it with KEY argument.
 
-        VanScheduleFragment fragment = new VanScheduleFragment();                           //create the frgment
-        fragment.setArguments(args);                                                        //set arguments (the bundle witht heint) to fragment
-        return fragment;                                                                    //this class is started go see oncreate(bundle) method...
+    public static VanScheduleFragment newInstance(Direction dir) {
+        Bundle args = new Bundle();
+        args.putString(ARG_DIRECTION, dir.name());
 
+        VanScheduleFragment fragment = new VanScheduleFragment();
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Override
@@ -96,13 +94,15 @@ public class VanScheduleFragment extends Fragment implements TextToSpeech.OnInit
         mFromFrontPage = mSharedPreferences.getBoolean("fromFrontPage", false);
         mFirstTimeSignIn = mSharedPreferences.getBoolean("firstTimeSignIn", true);
         scheduleStatus = mSharedPreferences.getString("scheduleStatus", "");
+        mSharedPreferenceEditor.putBoolean("easterEggFound", false);
+        mSharedPreferenceEditor.commit();
 
         mTextToSpeech = new TextToSpeech(getActivity(), this);
         res = getResources();
 
-        String selectedDirection = (String) getArguments().getSerializable(ARG_LIST_TO_DISPLAY);          // retrieve the argument from the budnel passed on from vanskedfrontfragment
-        mHomeisPressed = (boolean) getArguments().getSerializable(ARG_IS_GOING_HOME);               //retrieve the argument (boolean) using key  is going home. //to retain IB or OB functinality
-        selectedHour = Integer.parseInt(hourFormat.format(System.currentTimeMillis()));                         //upon creation of the fragment just set the hour to show to current hour;
+        String selectedDirection = (String) getArguments().getSerializable(ARG_DIRECTION);
+        mDirection = Direction.get(selectedDirection);
+        selectedHour = Integer.parseInt(hourFormat.format(System.currentTimeMillis()));
 
         if(mScheduleService.findAll() == null || mScheduleService.findAll().isEmpty()){
             scheduleStatus = "No Saved Schedule";
@@ -110,20 +110,18 @@ public class VanScheduleFragment extends Fragment implements TextToSpeech.OnInit
             return;
         }
 
-
         if (mFirstTimeSignIn) {
-            FragmentManager manager = getFragmentManager();                                     //call fragment managers help
+            FragmentManager manager = getFragmentManager();
             Tip dialogTips = new Tip();
             dialogTips.show(manager, DIALOG_TIPS);
         }
-
 
         ActionBar menu = ((AppCompatActivity) getActivity()).getSupportActionBar();
         menu.setDisplayShowHomeEnabled(true);
         menu.setLogo(R.mipmap.ic_logo);
         menu.setDisplayUseLogoEnabled(true);
 
-        setHasOptionsMenu(true);                                        //explicity tellingthe Fragment Manger that your fragment should receive a call to oncreatptions menu
+        setHasOptionsMenu(true);
     }
 
 
@@ -131,7 +129,6 @@ public class VanScheduleFragment extends Fragment implements TextToSpeech.OnInit
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.fragment_van_schedule, menu);
-
     }
 
     @Override
@@ -144,10 +141,10 @@ public class VanScheduleFragment extends Fragment implements TextToSpeech.OnInit
             case R.id.menu_filter:
                 return true;
             case R.id.menu_all_outgoing:
-                updateUI(mScheduleService.findByDirection("OUT"));
+                updateUI(mScheduleService.findByDirection(Direction.OUT));
                 return true;
             case R.id.menu_all_incoming:
-                updateUI(mScheduleService.findByDirection("IN"));
+                updateUI(mScheduleService.findByDirection(Direction.IN));
                 return true;
             case R.id.menu_all_schedules:
                 updateUI(mScheduleService.findByHour(getHourNow()));
@@ -156,7 +153,6 @@ public class VanScheduleFragment extends Fragment implements TextToSpeech.OnInit
                 mSharedPreferenceEditor.putBoolean("wantsToExit", true);
                 mSharedPreferenceEditor.commit();
                 boolean savedone = mSharedPreferences.getBoolean("wantsToExit", false);
-                Log.d("Lemzki", "doneSavingData" + Boolean.toString(savedone));
                 Intent data = new Intent();
                 data.putExtra(EXTRA_WANTS_TO_EXIT, true);
                 getActivity().setResult(Activity.RESULT_OK, data);
@@ -168,8 +164,8 @@ public class VanScheduleFragment extends Fragment implements TextToSpeech.OnInit
                 openUploadFragment();
                 return true;
             case R.id.menu_about:
-                FragmentManager manager = getFragmentManager();                                     //call fragment managers help
-                AboutFragment dialog = new AboutFragment();                               //instantiate timpickerfragment
+                FragmentManager manager = getFragmentManager();
+                AboutFragment dialog = new AboutFragment();
                 dialog.setTargetFragment(VanScheduleFragment.this, REQUEST_EASTER_EGG);
                 dialog.show(manager, DIALOG_MENU_ABOUT);
             default:
@@ -205,30 +201,30 @@ public class VanScheduleFragment extends Fragment implements TextToSpeech.OnInit
         mButtonNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                updateUI(mScheduleService.findByDirectionAndHour(currentDirection(), ++selectedHour%24));
+                updateUI(mScheduleService.findByDirectionAndHour(mDirection, getHourBy24(++selectedHour)));
             }
         });
         Button mButtonPrev = (Button) v.findViewById(R.id.button_previous_hour);
         mButtonPrev.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                updateUI(mScheduleService.findByDirectionAndHour(currentDirection(), --selectedHour%24));
+                updateUI(mScheduleService.findByDirectionAndHour(mDirection, getHourBy24(--selectedHour)));
             }
         });
 
 
         mRecyclerView = (RecyclerView) v.findViewById(R.id.fragment_van_schedule_recylcer_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        updateUI(mScheduleService.findByDirectionAndHour(currentDirection(), getHourNow()));
+        updateUI(mScheduleService.findByDirectionAndHour(mDirection, getHourNow()));
 
         Button timeButton = (Button) v.findViewById(R.id.VanTime_button);
         timeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FragmentManager manager = getFragmentManager();                                     //call fragment managers help
-                TimePickerFragment dialog = new TimePickerFragment();                               //instantiate timpickerfragment
-                dialog.setTargetFragment(VanScheduleFragment.this, REQUEST_TIME);                   //USED to keep track of the target fragment to know which fragment to give a result back to
-                dialog.show(manager, DIALOG_TIME);                                                    //show the dialog when button clicked (if manager chosen, atuomatically transactioned and commited);
+                FragmentManager manager = getFragmentManager();
+                TimePickerFragment dialog = new TimePickerFragment();
+                dialog.setTargetFragment(VanScheduleFragment.this, REQUEST_TIME);
+                dialog.show(manager, DIALOG_TIME);
             }
         });
 
@@ -238,9 +234,9 @@ public class VanScheduleFragment extends Fragment implements TextToSpeech.OnInit
             public void onClick(View v) {
                 FragmentManager manager = getFragmentManager();
                 HashSet<String> vanNums = (HashSet<String>) mScheduleService.getAllVanNums();
-                VanListPickerFragment dialog = VanListPickerFragment.newInstance(vanNums);                               //instantiate timpickerfragment
-                dialog.setTargetFragment(VanScheduleFragment.this, REQUEST_VAN_NUM);                   //USED to keep track of the target fragment to know which fragment to give a result back to
-                dialog.show(manager, DIALOG_VAN_NUM);                                                    //show the dialog when button clicked (if manager chosen, atuomatically transactioned and commited);
+                VanListPickerFragment dialog = VanListPickerFragment.newInstance(vanNums);
+                dialog.setTargetFragment(VanScheduleFragment.this, REQUEST_VAN_NUM);
+                dialog.show(manager, DIALOG_VAN_NUM);
             }
         });
 
@@ -249,10 +245,10 @@ public class VanScheduleFragment extends Fragment implements TextToSpeech.OnInit
         disclaimerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FragmentManager manager = getFragmentManager();                                     //call fragment managers help
-                DisclaimerFragment dialog = new DisclaimerFragment();                               //instantiate timpickerfragment
+                FragmentManager manager = getFragmentManager();
+                DisclaimerFragment dialog = new DisclaimerFragment();
 
-                dialog.show(manager, DIALOG_DISCLAIMER);                                                    //show the dialog when button clicked (if manager chosen, atuomatically transactioned and commited);
+                dialog.show(manager, DIALOG_DISCLAIMER);
             }
         });
 
@@ -263,8 +259,8 @@ public class VanScheduleFragment extends Fragment implements TextToSpeech.OnInit
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                updateUI(mScheduleService.findByDirectionAndHour(currentDirection(), getHourNow()));
-                mSwipeRefreshLayout.setRefreshing(false);               //stop showing the refresh image
+                updateUI(mScheduleService.findByDirectionAndHour(mDirection, getHourNow()));
+                mSwipeRefreshLayout.setRefreshing(false);
             }
         });
 
@@ -283,7 +279,7 @@ public class VanScheduleFragment extends Fragment implements TextToSpeech.OnInit
         if (requestCode == REQUEST_TIME) {                                                                      //set the time in H received from the timepicker plug it in to membervariable and set button to time
             String timeinH = (String) data.getSerializableExtra(TimePickerFragment.EXTRA_TIME);
             selectedHour = Integer.parseInt(timeinH);
-            updateUI(mScheduleService.findByDirectionAndHour(currentDirection(), selectedHour));
+            updateUI(mScheduleService.findByDirectionAndHour(mDirection, selectedHour));
 
         } else if (requestCode == REQUEST_VAN_NUM) {
             String requestedVanNum = (String) data.getSerializableExtra(VanListPickerFragment.EXTRA_VAN_NUM);
@@ -307,13 +303,8 @@ public class VanScheduleFragment extends Fragment implements TextToSpeech.OnInit
                 if (mPreferencesSoundOn) {
                     //WHERE YOU SPEAK
                     if (mFromFrontPage) {
-                        if (mHomeisPressed) {
-                            mTextToSpeak = res.getString(R.string.message_current_hour_home);
-                            speakOut(mTextToSpeak);
-                        } else {
-                            mTextToSpeak = res.getString(R.string.message_current_hour_office);
-                            speakOut(mTextToSpeak);
-                        }
+                        mTextToSpeak = getTextToSpeakBasedOnDirection();
+                        speakOut(mTextToSpeak);
                         mSharedPreferenceEditor.putBoolean("fromFrontPage", false);
                         mSharedPreferenceEditor.commit();
                     }
@@ -323,6 +314,16 @@ public class VanScheduleFragment extends Fragment implements TextToSpeech.OnInit
             }
         } else {
             Log.i("TTS", "Initilization Failed!");
+        }
+    }
+
+    private String getTextToSpeakBasedOnDirection() {
+        if(mDirection == Direction.IN){
+            return res.getString(R.string.message_current_hour_office);
+        } else if (mDirection == Direction.OUT){
+            return res.getString(R.string.message_current_hour_home);
+        } else {
+            return res.getString(R.string.message_current_hour_homeAndOffce);
         }
     }
 
@@ -380,11 +381,6 @@ public class VanScheduleFragment extends Fragment implements TextToSpeech.OnInit
     }
 
 
-    private String currentDirection() {
-        return mHomeisPressed ? "OUT" : "IN";
-    }
-
-
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -403,5 +399,11 @@ public class VanScheduleFragment extends Fragment implements TextToSpeech.OnInit
         } else {
             mTextToSpeech.speak(whatToSay, TextToSpeech.QUEUE_FLUSH, null);
         }
+    }
+
+    private int getHourBy24(int num){
+        int i = num % 24;
+        if (i<0) i += 24;
+        return i;
     }
 }

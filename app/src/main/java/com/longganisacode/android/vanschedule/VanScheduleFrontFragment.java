@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -18,7 +17,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
+
+import com.longganisacode.android.vanschedule.schedule.Direction;
 
 import java.util.Locale;
 
@@ -49,20 +49,16 @@ public class VanScheduleFrontFragment extends Fragment implements TextToSpeech.O
 
     public static VanScheduleFrontFragment newInstance() {return new VanScheduleFrontFragment();}
 
-
-
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().hide();                           //fix how to hide?eeeeeeeeeeeeeeeeeee
+        ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
 
         //load prefernces upon creating the fragment
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         mWantsToExit = mSharedPreferences.getBoolean("wantsToExit", false);
         mPreferencesSoundOn = mSharedPreferences.getBoolean("soundTTSOn", false);
-        mPreferencesSoundOn = mSharedPreferences.getBoolean("easterEggFound", false);
         mPreferencesAnimationOn = mSharedPreferences.getBoolean("animationSwitch", false);
         mFirstTimeSignIn = mSharedPreferences.getBoolean("firstTimeSignIn", true);
         mPreferencesUserName = mSharedPreferences.getString("userName", " ");
@@ -72,27 +68,19 @@ public class VanScheduleFrontFragment extends Fragment implements TextToSpeech.O
         mSharedPreferenceEditor.commit();
         res = getResources();
 
-
         mTextToSpeech = new TextToSpeech(getActivity(), this);
-
-        //initialize tts as early as now so that speakmethods can easily call speak method and decide if when to speak
-        //mTextToSpeech = new TextToSpeech(getActivity(), this);  //--issue tts hasn't loaded fast enough before greeting can be read
-        Log.d("Lemzki", "oncreate " + Boolean.toString(mWantsToExit));
-
     }
 
 
     @Override
     public void onResume() {
         super.onResume();
-        Log.d("Lemzki", "onresume " + Boolean.toString(mWantsToExit));
 
         //also load the soundanimation preferences here so that whenever they return to activity, new preferences are refelcted
         mPreferencesSoundOn = mSharedPreferences.getBoolean("soundTTSOn", false);
         mPreferencesAnimationOn = mSharedPreferences.getBoolean("animationSwitch", false);
-        mWantsToExit = mSharedPreferences.getBoolean("wantsToExit", false);                 //used to identify when loading vanskedfragment for the first time toinitiate tts
+        mWantsToExit = mSharedPreferences.getBoolean("wantsToExit", false);
     }
-
 
 
     @Override
@@ -106,24 +94,23 @@ public class VanScheduleFrontFragment extends Fragment implements TextToSpeech.O
         mSharedPreferenceEditor.putBoolean("wantsToExit", false);
         mSharedPreferenceEditor.commit();
 
-        if(mTextToSpeech !=null){
+        if (mTextToSpeech != null) {
             mTextToSpeech.stop();
-            mTextToSpeech.shutdown();}
+            mTextToSpeech.shutdown();
+        }
     }
 
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Log.d("Lemzki", "oncreateview" + Boolean.toString(mWantsToExit));
 
         View v = inflater.inflate(R.layout.fragment_van_schedule_front_v2, container, false);
         ImageView mHomeButton = (ImageView) v.findViewById(R.id.imageHomeArrow);
         mHomeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mTextToSpeak = res.getString(R.string.going_home_message);
-                frontPageButtonBehavior("home", mTextToSpeak, true);
+                loadScheduleByDirection(Direction.OUT);
             }
         });
 
@@ -132,8 +119,16 @@ public class VanScheduleFrontFragment extends Fragment implements TextToSpeech.O
         mOfficeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mTextToSpeak = res.getString(R.string.going_office_message);
-                frontPageButtonBehavior("office", mTextToSpeak, false);
+                loadScheduleByDirection(Direction.IN);
+            }
+        });
+
+        ImageView bothButton = (ImageView) v.findViewById(R.id.imageBothArrow);
+        bothButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = VanScheduleActivity.newIntent(getActivity(), Direction.BOTH);                     //called the static method from vanschedactivity passing true as parameter to be used as extra
+                startActivityForResult(intent, REQUEST_CLOSE_ALL);
             }
         });
 
@@ -142,30 +137,22 @@ public class VanScheduleFrontFragment extends Fragment implements TextToSpeech.O
     }
 
 
+    private void loadScheduleByDirection(Direction dir) {
 
-    private void frontPageButtonBehavior(String homeOrOffice, String message, boolean homeIsPressed) {
-
-        if(mPreferencesAnimationOn) {
+        if (mPreferencesAnimationOn) {
             FragmentManager manager = getFragmentManager();                                     //call fragment managers help
-            VanAnimationDialogFragment dialog = VanAnimationDialogFragment.newInstance(homeOrOffice);         //place home as the bundle to save with fragment
+            VanAnimationDialogFragment dialog = VanAnimationDialogFragment.newInstance(dir);         //place home as the bundle to save with fragment
             dialog.setTargetFragment(VanScheduleFrontFragment.this, REQUEST_WANTS_EXIT);
             dialog.show(manager, DIALOG_VAN_ANIM);
-
         } else {
-            Intent intent = VanScheduleActivity.newIntent(getActivity(), homeOrOffice, homeIsPressed);                     //called the static method from vanschedactivity passing true as parameter to be used as extra
+            Intent intent = VanScheduleActivity.newIntent(getActivity(), dir);                     //called the static method from vanschedactivity passing true as parameter to be used as extra
             startActivityForResult(intent, REQUEST_CLOSE_ALL);
-
         }
-
 
         if (mPreferencesSoundOn) {
-            speakOut(message);
+            speakOut(Direction.IN == dir ? res.getString(R.string.going_office_message) : res.getString(R.string.going_home_message));
         }
-
-
     }
-
-
 
 
     @Override

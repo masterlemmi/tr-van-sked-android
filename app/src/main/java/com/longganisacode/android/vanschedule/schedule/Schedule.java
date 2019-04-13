@@ -6,7 +6,7 @@ public class Schedule {
 	private String vanNumber;
 	private String route;
 	private String location;
-	private String direction;
+	private Direction direction;
 	private int hour;
 
 	public Integer getId() {
@@ -49,11 +49,11 @@ public class Schedule {
 		this.location = location;
 	}
 
-	public String getDirection() {
+	public Direction getDirection() {
 		return direction;
 	}
 
-	public void setDirection(String direction) {
+	public void setDirection(Direction direction) {
 		this.direction = direction;
 	}
 

@@ -54,7 +54,7 @@ public class SqliteScheduleService extends AbstractScheduleService {
             schedule.setVanNumber(vanNum);
             schedule.setRoute(route);
             schedule.setLocation(looc);
-            schedule.setDirection(dir);
+            schedule.setDirection(Direction.valueOf(dir));
             schedule.setHour(Integer.parseInt(hour));
             allSschedules.add(schedule);
         }
@@ -89,7 +89,7 @@ public class SqliteScheduleService extends AbstractScheduleService {
         values.put(ScheduleEntry.VAN_NUM, schedule.getVanNumber());
         values.put(ScheduleEntry.ROUTE, schedule.getRoute());
         values.put(ScheduleEntry.LOCATION, schedule.getLocation());
-        values.put(ScheduleEntry.DIRECTION, schedule.getDirection());
+        values.put(ScheduleEntry.DIRECTION, schedule.getDirection().name());
         values.put(ScheduleEntry.HOUR,schedule.getHour());
 
         // Insert the new row, returning the primary key value of the new row

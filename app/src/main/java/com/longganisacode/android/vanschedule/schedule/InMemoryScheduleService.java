@@ -49,12 +49,10 @@ public class InMemoryScheduleService extends AbstractScheduleService {
                 s.setVanNumber(rowData[1]);
                 s.setRoute(rowData[2]);
                 s.setLocation(rowData[3]);
-                s.setDirection(rowData[4]);
+                s.setDirection(Direction.get(rowData[4]));
                 s.setHour(Integer.parseInt(rowData[5]));
                 scheduleList.add(s);
             }
-
-
         } catch (IOException e) {
             e.printStackTrace();
         }

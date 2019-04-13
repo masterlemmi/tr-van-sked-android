@@ -31,6 +31,7 @@
     <string name = "going_home_message">Going Home?</string>
     <string name = "message_current_hour_home">Here are all the van schedules leaving Mckinley Hill for the current hour. </string>
     <string name = "message_current_hour_office">Here are the van schedules going to Mckinley Hill for the current hour.</string>
+    <string name = "message_current_hour_homeAndOffce">Here are all the van schedules for the current hour. </string>
     <string name = "message_all_office">Here are all the van schedules going to Mckinley Hill.</string>
     <string name = "message_all_home">Here are all the van schedules leaving Mckinley Hill.</string>
     <string name = "message_all_perHour">Here are all the incoming and outgoing van schedules for %1$s.</string>

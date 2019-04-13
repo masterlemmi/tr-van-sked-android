@@ -79,10 +79,7 @@ public class ScheduleMapper {
         }
 
         return list;
-
-
     }
-
 
     private int getHourFromTime(String time) {
         try {
@@ -98,9 +95,9 @@ public class ScheduleMapper {
     }
 
 
-    private String determineDirection(String dir) {
+    private Direction determineDirection(String dir) {
         String direction = dir.toUpperCase().trim();
-        return direction.startsWith("MH") ? "OUT" : "IN";
+        return direction.startsWith("MH") ? Direction.OUT : Direction.IN;
     }
 
 }

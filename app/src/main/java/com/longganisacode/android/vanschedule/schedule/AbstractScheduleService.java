@@ -14,20 +14,25 @@ public abstract class AbstractScheduleService implements IScheduleService {
     public abstract List<Schedule> findAll();
 
     @Override
-    public List<Schedule> findByDirectionAndHour(String dir, int hour) {
+    public List<Schedule> findByDirectionAndHour(Direction dir, int hour) {
         List<Schedule> scheduleList = new ArrayList<>();
         for (Schedule se : findAll()) {
-            if (se.getDirection().equalsIgnoreCase(dir) && se.getHour() == (hour))
+            if (compareDirection(dir, se.getDirection()) && se.getHour() == (hour))
                 scheduleList.add(se);
         }
         return scheduleList;
     }
 
+    private boolean compareDirection(Direction param, Direction fromSched){
+        if (param == Direction.BOTH) return true;
+        else return param == fromSched;
+    }
+
     @Override
-    public List<Schedule> findByDirection(String dir) {
+    public List<Schedule> findByDirection(Direction dir) {
         List<Schedule> scheduleList = new ArrayList<>();
         for (Schedule se : findAll()) {
-            if (se.getDirection().equalsIgnoreCase(dir))
+            if (compareDirection(dir, se.getDirection()))
                 scheduleList.add(se);
         }
         return scheduleList;

@@ -12,10 +12,10 @@ public interface IScheduleService {
 
 
     //home == OUT // office = IN
-     List<Schedule> findByDirectionAndHour(String dir, int hour);
+     List<Schedule> findByDirectionAndHour(Direction dir, int hour);
 
     //allOB == OUT //allIB = IN
-     List<Schedule> findByDirection(String dir);
+     List<Schedule> findByDirection(Direction dir);
 
     //allPerVanNum
      List<Schedule> findByVanNumber(String vanNum);

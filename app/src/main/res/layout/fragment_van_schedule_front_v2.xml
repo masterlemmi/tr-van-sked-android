@@ -34,13 +34,23 @@
         android:layout_toStartOf="@+id/imagePole"/>
 
     <ImageView
+        android:id="@+id/imageHalfLogo"
         android:layout_width="129dp"
         android:layout_height="132dp"
-        android:id="@+id/imageHalfLogo"
-        android:background="@drawable/logohalf"
 
         android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"/>
+        android:layout_alignParentEnd="true"
+        android:background="@drawable/logohalf" />
+
+    <ImageView
+        android:id="@+id/imageBothArrow"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/bothcircle" />
+
+
 
 </RelativeLayout>
